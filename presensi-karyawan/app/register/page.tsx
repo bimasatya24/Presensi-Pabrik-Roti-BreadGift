@@ -1,10 +1,10 @@
 'use client'
 
-import React, { useActionState } from 'react'
+import React, { useActionState, useState } from 'react'
 import { registerAction } from './actions'
 import Link from 'next/link'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faUser, faLock, faUserPlus, faEnvelope } from '@fortawesome/free-solid-svg-icons'
+import { faUser, faLock, faUserPlus, faEnvelope, faEyeSlash, faEye } from '@fortawesome/free-solid-svg-icons'
 
 
 const initialState = {
@@ -13,6 +13,7 @@ const initialState = {
 
 export default function Register() {
   const [state, formAction, isPending] = useActionState(registerAction, initialState)
+  const [showPassword, setShowPassword] = useState(false)
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-slate-950 flex items-center justify-center p-4">
@@ -69,20 +70,32 @@ export default function Register() {
             />
           </div>
 
-          <div className="form-control w-full">
+          <div className="form-control w-full relative">
             <label className="label">
               <span className="label-text text-slate-300 font-medium flex items-center gap-2">
                 <FontAwesomeIcon icon={faLock} className="text-orange-500 w-3.5 h-3.5" />
                 Kata Sandi
               </span>
             </label>
+
+            {/* Tambahkan pr-10 agar input tidak menutupi ikon */}
             <input
               name="kata_sandi"
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder="••••••••"
-              className="input input-bordered glass w-full text-white placeholder-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all duration-200"
+              className="input input-bordered glass w-full text-white placeholder-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all duration-200 pr-10"
               required
             />
+
+            {/* Tombol diposisikan absolute di sebelah kanan */}
+            <button
+              type="button"
+              className="absolute right-3 top-[55%] text-slate-400 hover:text-orange-500 transition-colors"
+              onClick={() => setShowPassword(!showPassword)}
+              aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
+            >
+              <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} className="w-5 h-5" />
+            </button>
           </div>
 
           <div className="pt-4 space-y-4">
