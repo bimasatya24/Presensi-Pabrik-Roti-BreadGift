@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useTransition } from "react";
+import React, { useState, useTransition } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUserGear, faUser, faLock } from "@fortawesome/free-solid-svg-icons";
+import { faUserGear, faUser, faLock, faEyeSlash, faEye } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 
 interface AdminProfileFormProps {
@@ -15,6 +15,7 @@ interface AdminProfileFormProps {
 
 export default function AdminProfileForm({ admin, onUpdate }: AdminProfileFormProps) {
   const [isPending, startTransition] = useTransition();
+  const [showPassword, setShowPassword] = useState(false)
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -54,19 +55,30 @@ export default function AdminProfileForm({ admin, onUpdate }: AdminProfileFormPr
           />
         </div>
 
-        <div className="form-control w-full">
+        <div className="form-control w-full relative">
           <label className="label">
             <span className="label-text text-[10px] font-black text-slate-400 flex items-center gap-2">
               <FontAwesomeIcon icon={faLock} className="text-indigo-500" />
               Kata Sandi Baru
             </span>
           </label>
+
           <input
             name="kata_sandi"
-            type="password"
+            type={showPassword ? "text" : "password"}
             placeholder="Kata Sandi"
-            className="input input-bordered glass w-full h-14 bg-white/3 border-white/10 text-white placeholder:text-white focus:border-indigo-500 focus:bg-white/6 rounded-2xl transition-all font-bold"
+            className="input input-bordered glass w-full h-14 bg-white/3 border-white/10 text-white placeholder:text-white focus:border-indigo-500 focus:bg-white/6 rounded-2xl transition-all font-bold pr-14"
           />
+
+          {/* Tombol Toggle Ikon */}
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-4 top-[67%] -translate-y-1/2 text-slate-400 hover:text-indigo-500 transition-colors"
+            aria-label={showPassword ? "Sembunyikan sandi" : "Tampilkan sandi"}
+          >
+            <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} className="w-5 h-5" />
+          </button>
         </div>
 
         <div className="pt-6 flex flex-row gap-4">
