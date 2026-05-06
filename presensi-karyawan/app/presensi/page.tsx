@@ -215,12 +215,7 @@ export default async function Page(props: {
               </tbody>
             </table>
           </div>
-
-          <div className="p-6 bg-white/1 border-t border-white/5 flex justify-between items-center">
-            <p className="text-xs text-white font-medium">Menampilkan {allPresensi.length} catatan kehadiran</p>
-          </div>
         </div>
-
       </div>
 
       {/* Attendance Photo Modals (Rendered outside z-index containers to prevent navbar overlap) */}
