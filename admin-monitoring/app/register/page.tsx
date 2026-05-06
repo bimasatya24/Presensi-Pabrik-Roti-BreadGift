@@ -1,13 +1,15 @@
 'use client'
 
-import React, { useActionState } from 'react'
+import React, { useActionState, useState } from 'react'
 import Link from 'next/link'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faKey, faChevronLeft, faUserShield } from '@fortawesome/free-solid-svg-icons'
+import { faEyeSlash, faEye } from "@fortawesome/free-solid-svg-icons";
 import { adminRegisterAction } from './actions'
 
 export default function AdminRegister() {
     const [state, action, isPending] = useActionState(adminRegisterAction, null)
+    const [showPassword, setShowPassword] = useState(false)
 
     return (
         <main className="relative min-h-screen overflow-hidden bg-[#0a0f1d] flex items-center justify-center p-6">
@@ -74,19 +76,37 @@ export default function AdminRegister() {
 
                             <div className="form-control">
                                 <label className="label">
-                                    <span className="label-text text-slate-300 font-semibold text-xs uppercase tracking-widest">Kata Sandi</span>
+                                    <span className="label-text text-slate-300 font-semibold text-xs uppercase tracking-widest">
+                                        Kata Sandi
+                                    </span>
                                 </label>
                                 <div className="relative group">
+                                    {/* Ikon Kiri (Key) */}
                                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-indigo-500 transition-colors">
                                         <FontAwesomeIcon icon={faKey} className="w-4 h-4" />
                                     </div>
+
+                                    {/* Input */}
                                     <input
                                         name="kata_sandi"
-                                        type="password"
+                                        type={showPassword ? "text" : "password"}
                                         placeholder="••••••••••••"
-                                        className="input w-full bg-white/3 border-white/10 focus:border-indigo-500 focus:bg-white/6 text-white pl-12 h-14 rounded-2xl transition-all duration-300 placeholder:text-slate-500"
+                                        className="input w-full bg-white/3 border-white/10 focus:border-indigo-500 focus:bg-white/6 text-white pl-12 pr-14 h-14 rounded-2xl transition-all duration-300 placeholder:text-white"
                                         required
                                     />
+
+                                    {/* Tombol Toggle Mata di Kanan */}
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-500 hover:text-indigo-500 transition-colors duration-300"
+                                        aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+                                    >
+                                        <FontAwesomeIcon
+                                            icon={showPassword ? faEyeSlash : faEye}
+                                            className="w-4 h-4"
+                                        />
+                                    </button>
                                 </div>
                             </div>
 
