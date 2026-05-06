@@ -135,7 +135,7 @@ export default async function ManagementDashboard(props: {
             <div className="dropdown dropdown-end">
               <div tabIndex={0} role="button" className="btn btn-ghost glass rounded-2xl flex items-center gap-3 px-4 py-2 border border-white/10 hover:bg-white/5 transition-all">
                 <div className="w-8 h-8 rounded-xl bg-indigo-500/20 flex items-center justify-center text-indigo-400">
-                  <FontAwesomeIcon icon={faUserGear} className="w-4 h-4" />
+                  <FontAwesomeIcon icon={faUserGear} className="w-4 h-4" fixedWidth />
                 </div>
                 <div className="text-left hidden sm:block">
                   <p className="text-xs font-black text-white leading-tight tracking-tighter">{admin.nama}</p>
@@ -167,7 +167,7 @@ export default async function ManagementDashboard(props: {
           {stats.map((stat, i) => (
             <div key={i} className="glass p-6 rounded-4xl border border-white/5 flex items-center gap-6 group hover:translate-y-1 transition-all duration-300">
               <div className={`w-16 h-16 rounded-2xl ${stat.bg} flex items-center justify-center text-2xl ${stat.color} shadow-inner`}>
-                <FontAwesomeIcon icon={stat.icon} />
+                <FontAwesomeIcon icon={stat.icon} className="w-6 h-6" fixedWidth />
               </div>
               <div>
                 <p className="text-[10px] font-black text-white uppercase tracking-[0.2em] mb-1">{stat.label}</p>

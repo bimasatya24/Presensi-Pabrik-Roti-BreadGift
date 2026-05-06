@@ -48,7 +48,7 @@ export default function AdminProfileForm({ admin, onUpdate }: AdminProfileFormPr
             name="nama"
             type="text"
             defaultValue={admin.nama}
-            placeholder="Masukkan nama baru"
+            placeholder="Nama lengkap anda"
             className="input input-bordered glass w-full h-14 bg-white/3 border-white/10 text-white placeholder:text-slate-600 focus:border-indigo-500 focus:bg-white/6 rounded-2xl transition-all font-bold"
             required
           />
@@ -64,7 +64,7 @@ export default function AdminProfileForm({ admin, onUpdate }: AdminProfileFormPr
           <input
             name="kata_sandi"
             type="password"
-            placeholder="Kosongkan jika tidak ingin mengubah kata sandi"
+            placeholder="Kata Sandi"
             className="input input-bordered glass w-full h-14 bg-white/3 border-white/10 text-white placeholder:text-white focus:border-indigo-500 focus:bg-white/6 rounded-2xl transition-all font-bold"
           />
         </div>
