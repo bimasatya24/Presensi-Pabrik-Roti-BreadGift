@@ -63,26 +63,45 @@ export default async function ManagementDashboard(props: {
   // The user wants the same as what's in the program and excel
   const downloadData = await getAttendanceWithAlphas(search, "Semua");
 
-  // Calculate Alpha Stats based on selected month and year
-  const alphaStatsMap = new Map<number, { user: any, count: number, records: any[] }>();
+  // Calculate User Stats based on selected month and year
+  const userStatsMap = new Map<number, { 
+    user: any, 
+    counts: { Hadir: number, Sakit: number, Izin: number, Alpha: number }, 
+    records: any[] 
+  }>();
   
-  // Filter allPresensi specifically for the Alpha Monitoring section
-  allPresensi.forEach((p: any) => {
+  // Use downloadData because it always contains ALL statuses ("Semua")
+  downloadData.forEach((p: any) => {
     const d = new Date(p.presensi);
     const m = (d.getMonth() + 1).toString();
     const y = d.getFullYear().toString();
     
-    if (p.status === 'Alpha' && m === alphaMonth && y === alphaYear) {
-      if (!alphaStatsMap.has(p.userID)) {
-        alphaStatsMap.set(p.userID, { user: p.user, count: 0, records: [] });
+    if (m === alphaMonth && y === alphaYear) {
+      if (!userStatsMap.has(p.userID)) {
+        userStatsMap.set(p.userID, { 
+          user: p.user, 
+          counts: { Hadir: 0, Sakit: 0, Izin: 0, Alpha: 0 }, 
+          records: [] 
+        });
       }
-      const stat = alphaStatsMap.get(p.userID)!;
-      stat.count++;
+      const stat = userStatsMap.get(p.userID)!;
       stat.records.push(p);
+      if (p.status in stat.counts) {
+        stat.counts[p.status as keyof typeof stat.counts]++;
+      }
     }
   });
 
-  const alphaStatsArray = Array.from(alphaStatsMap.values()).sort((a, b) => b.count - a.count);
+  const userStatsArray = Array.from(userStatsMap.values())
+    .filter(stat => {
+      if (statusFilter === "Semua") return true;
+      if (statusFilter === "Hadir") return stat.counts.Hadir > 0;
+      if (statusFilter === "Sakit") return stat.counts.Sakit > 0;
+      if (statusFilter === "Izin") return stat.counts.Izin > 0;
+      if (statusFilter === "Alpha") return stat.counts.Alpha > 0;
+      return true;
+    })
+    .sort((a, b) => b.counts.Alpha - a.counts.Alpha);
 
   const todayHadir = todayStats.find(s => s.status === 'Hadir')?._count || 0;
   const todaySakit = todayStats.find(s => s.status === 'Sakit')?._count || 0;
@@ -215,18 +234,18 @@ export default async function ManagementDashboard(props: {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
-                {alphaStatsArray.length === 0 ? (
+                {userStatsArray.length === 0 ? (
                   <tr>
                     <td colSpan={3} className="px-6 py-12 text-center text-slate-400 text-sm font-medium italic border-none bg-white/2 rounded-b-2xl">
-                      Tidak ada karyawan yang Alpha pada bulan ini.
+                      Tidak ada data karyawan pada periode ini.
                     </td>
                   </tr>
                 ) : (
-                  alphaStatsArray.map((stat, idx) => (
-                    <tr key={`alpha_row_${stat.user.id}`} className={`group hover:bg-red-500/5 transition-colors border-none ${idx === alphaStatsArray.length - 1 ? '[&>td:first-child]:rounded-bl-2xl [&>td:last-child]:rounded-br-2xl' : ''}`}>
+                  userStatsArray.map((stat, idx) => (
+                    <tr key={`user_stat_row_${stat.user.id}`} className={`group hover:bg-emerald-500/5 transition-colors border-none ${idx === userStatsArray.length - 1 ? '[&>td:first-child]:rounded-bl-2xl [&>td:last-child]:rounded-br-2xl' : ''}`}>
                       <td className="px-6 py-4 border-none bg-white/2">
                         <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center overflow-hidden border border-white/10 group-hover:border-red-500/30 transition-colors">
+                          <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center overflow-hidden border border-white/10 group-hover:border-emerald-500/30 transition-colors">
                             {stat.user.gambar ? (
                               <img src={stat.user.gambar} className="w-full h-full object-cover" alt="User" />
                             ) : (
@@ -234,18 +253,18 @@ export default async function ManagementDashboard(props: {
                             )}
                           </div>
                           <div>
-                            <p className="text-sm font-bold text-white group-hover:text-red-400 transition-colors">{stat.user.nama}</p>
+                            <p className="text-sm font-bold text-white group-hover:text-emerald-400 transition-colors">{stat.user.nama}</p>
                             <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{stat.user.id === 1 ? "Admin" : "Karyawan"}</p>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 text-center border-none bg-white/2">
                         <div className="inline-flex items-center justify-center px-3 py-1 rounded-lg bg-red-500/10 text-red-400 font-black text-xs border border-red-500/20">
-                          {stat.count} Kali
+                          {stat.counts.Alpha} Kali
                         </div>
                       </td>
                       <td className="px-6 py-4 text-center border-none bg-white/2">
-                        <label htmlFor={`alpha_modal_${stat.user.id}`} className="btn btn-sm glass text-white hover:bg-red-500 hover:text-white border border-white/10 hover:border-red-500 transition-all cursor-pointer">
+                        <label htmlFor={`user_modal_${stat.user.id}`} className="btn btn-sm glass text-white hover:bg-emerald-500 hover:text-white border border-white/10 hover:border-emerald-500 transition-all cursor-pointer">
                           <FontAwesomeIcon icon={faList} className="w-3.5 h-3.5 mr-2" />
                           Detail
                         </label>
@@ -429,51 +448,104 @@ export default async function ManagementDashboard(props: {
 
       </div>
 
-      {/* Alpha Detail Modals */}
+      {/* User Detail Modals */}
       <div className="relative z-100">
-        {alphaStatsArray.map((stat) => (
-          <React.Fragment key={`alpha_modal_${stat.user.id}`}>
-            <input type="checkbox" id={`alpha_modal_${stat.user.id}`} className="modal-toggle" />
+        {userStatsArray.map((stat) => (
+          <React.Fragment key={`user_modal_${stat.user.id}`}>
+            <input type="checkbox" id={`user_modal_${stat.user.id}`} className="modal-toggle" />
             <div className="modal" role="dialog">
               <div className="modal-box bg-slate-900 border border-white/10 p-0 overflow-hidden max-w-md shadow-2xl relative rounded-[2rem]">
-                <div className="p-6 bg-red-500/10 border-b border-white/10 flex items-center justify-between">
+                <div className="p-6 bg-emerald-500/10 border-b border-white/10 flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-red-500/20 flex items-center justify-center text-red-500">
-                      <FontAwesomeIcon icon={faCircleXmark} className="w-6 h-6" />
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-emerald-500">
+                      <FontAwesomeIcon icon={faList} className="w-6 h-6" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-black text-white">Detail Alpha</h3>
-                      <p className="text-xs text-red-400 font-bold uppercase tracking-widest">{stat.user.nama}</p>
+                      <h3 className="text-lg font-black text-white">Detail Status</h3>
+                      <p className="text-xs text-emerald-400 font-bold uppercase tracking-widest">{stat.user.nama}</p>
                     </div>
                   </div>
-                  <label htmlFor={`alpha_modal_${stat.user.id}`} className="btn btn-circle btn-sm glass border-white/20 text-white hover:bg-white/20">✕</label>
+                  <label htmlFor={`user_modal_${stat.user.id}`} className="btn btn-circle btn-sm glass border-white/20 text-white hover:bg-white/20">✕</label>
                 </div>
-                <div className="p-0 max-h-[50vh] overflow-y-auto">
+                <div className="p-0 max-h-[60vh] overflow-y-auto">
                   <table className="table w-full border-separate border-spacing-0">
                     <thead className="sticky top-0 bg-slate-900 z-10">
-                      <tr className="bg-red-500/10 text-white text-[10px] uppercase tracking-[0.2em] font-black">
-                        <th className="px-6 py-4 border-b border-white/10">Tanggal</th>
-                        <th className="px-6 py-4 border-b border-white/10 text-center">Status</th>
+                      <tr className="bg-white/5 text-white text-[10px] uppercase tracking-[0.2em] font-black">
+                        <th className="px-4 py-4 border-b border-white/10">Bulan</th>
+                        <th className="px-4 py-4 border-b border-white/10 text-center">Status</th>
+                        <th className="px-4 py-4 border-b border-white/10 text-center">Jumlah</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
-                      {stat.records.sort((a, b) => new Date(b.presensi).getTime() - new Date(a.presensi).getTime()).map((record: any) => (
-                        <tr key={`alpha_record_${record.id}`} className="hover:bg-red-500/5 transition-colors border-none">
-                          <td className="px-6 py-4 border-none">
-                            <span className="text-xs font-bold text-slate-300">
-                              {new Date(record.presensi).toLocaleDateString('id-ID', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 text-center border-none">
-                            <div className="badge badge-sm bg-red-500/20 text-red-400 border-none font-black uppercase tracking-widest text-[8px]">Alpha</div>
-                          </td>
-                        </tr>
-                      ))}
+                      {/* Baris Hadir */}
+                      <tr className="hover:bg-white/5 transition-colors border-none">
+                        <td className="px-4 py-3 border-none">
+                          <span className="text-xs font-bold text-slate-300">
+                            {new Date(parseInt(alphaYear), parseInt(alphaMonth) - 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 border-none text-center">
+                          <div className="badge badge-xs border-none font-black uppercase tracking-widest text-[8px] px-2 py-2 bg-emerald-500/20 text-emerald-400">
+                            Hadir
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 border-none text-center">
+                          <span className="text-xs font-black text-white">{stat.counts.Hadir}</span>
+                        </td>
+                      </tr>
+                      {/* Baris Sakit */}
+                      <tr className="hover:bg-white/5 transition-colors border-none">
+                        <td className="px-4 py-3 border-none">
+                          <span className="text-xs font-bold text-slate-300">
+                            {new Date(parseInt(alphaYear), parseInt(alphaMonth) - 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 border-none text-center">
+                          <div className="badge badge-xs border-none font-black uppercase tracking-widest text-[8px] px-2 py-2 bg-amber-500/20 text-amber-400">
+                            Sakit
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 border-none text-center">
+                          <span className="text-xs font-black text-white">{stat.counts.Sakit}</span>
+                        </td>
+                      </tr>
+                      {/* Baris Izin */}
+                      <tr className="hover:bg-white/5 transition-colors border-none">
+                        <td className="px-4 py-3 border-none">
+                          <span className="text-xs font-bold text-slate-300">
+                            {new Date(parseInt(alphaYear), parseInt(alphaMonth) - 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 border-none text-center">
+                          <div className="badge badge-xs border-none font-black uppercase tracking-widest text-[8px] px-2 py-2 bg-amber-500/20 text-amber-400">
+                            Izin
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 border-none text-center">
+                          <span className="text-xs font-black text-white">{stat.counts.Izin}</span>
+                        </td>
+                      </tr>
+                      {/* Baris Alpha */}
+                      <tr className="hover:bg-white/5 transition-colors border-none">
+                        <td className="px-4 py-3 border-none">
+                          <span className="text-xs font-bold text-slate-300">
+                            {new Date(parseInt(alphaYear), parseInt(alphaMonth) - 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 border-none text-center">
+                          <div className="badge badge-xs border-none font-black uppercase tracking-widest text-[8px] px-2 py-2 bg-red-500/20 text-red-400">
+                            Alpha
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 border-none text-center">
+                          <span className="text-xs font-black text-white">{stat.counts.Alpha}</span>
+                        </td>
+                      </tr>
                     </tbody>
                   </table>
                 </div>
               </div>
-              <label className="modal-backdrop" htmlFor={`alpha_modal_${stat.user.id}`}>Close</label>
+              <label className="modal-backdrop" htmlFor={`user_modal_${stat.user.id}`}>Close</label>
             </div>
           </React.Fragment>
         ))}
