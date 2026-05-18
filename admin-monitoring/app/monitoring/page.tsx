@@ -98,7 +98,7 @@ export default async function ManagementDashboard(props: {
       if (statusFilter === "Hadir") return stat.counts.Hadir > 0;
       if (statusFilter === "Sakit") return stat.counts.Sakit > 0;
       if (statusFilter === "Izin") return stat.counts.Izin > 0;
-      if (statusFilter === "Alpha") return stat.counts.Alpha > 0;
+      if (statusFilter === "Alpha") return stat.counts.Alpha > 4;
       return true;
     })
     .sort((a, b) => b.counts.Alpha - a.counts.Alpha);
