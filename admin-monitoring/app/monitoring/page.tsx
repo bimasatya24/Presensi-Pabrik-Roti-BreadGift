@@ -92,17 +92,7 @@ export default async function ManagementDashboard(props: {
     }
   });
 
-  const userStatsArray = Array.from(userStatsMap.values())
-    .filter(stat => {
-      if (statusFilter === "Semua") return true;
-      if (statusFilter === "Hadir") return stat.counts.Hadir > 0;
-      if (statusFilter === "Sakit") return stat.counts.Sakit > 0;
-      if (statusFilter === "Izin") return stat.counts.Izin > 0;
-      if (statusFilter === "Alpha") return stat.counts.Alpha > 4;
-      return true;
-    })
-    .sort((a, b) => b.counts.Alpha - a.counts.Alpha);
-
+  const userStatsArray = Array.from(userStatsMap.values()).filter(stat => stat.counts.Alpha > 4).sort((a, b) => b.counts.Alpha - a.counts.Alpha);
   const todayHadir = todayStats.find(s => s.status === 'Hadir')?._count || 0;
   const todaySakit = todayStats.find(s => s.status === 'Sakit')?._count || 0;
   const todayIzin = todayStats.find(s => s.status === 'Izin')?._count || 0;
