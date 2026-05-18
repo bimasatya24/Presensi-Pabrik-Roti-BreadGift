@@ -4,11 +4,11 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faCamera,
   faUser,
   faLock,
   faEyeSlash,
-  faEye
+  faEye,
+  faImages
 } from "@fortawesome/free-solid-svg-icons";
 import { faCircleUser } from "@fortawesome/free-solid-svg-icons/faCircleUser";
 
@@ -53,7 +53,7 @@ export default function ProfileForm({
             style={{ backgroundColor: "rgb(234 88 12)" }}
           >
             <FontAwesomeIcon
-              icon={faCamera}
+              icon={faImages}
               className="w-4 h-4 sm:w-5 sm:h-5"
             />
             <input
